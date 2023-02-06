@@ -29,3 +29,21 @@ jobs:
                     --target-branch=main \
                     --validate-maintainers=true \
                     --chart-dirs charts
+
+  kubescape:
+    name: Kubescape scanning for misconfiguration
+    runs-on: ubuntu-latest
+    steps:
+      - uses: action/checkout@v3
+      - uses: kubescape/github-action@main
+        continue-on-error: true
+        with:
+          format: sarif
+          outputFile: results
+          severityThreshold: high
+          # Scan a specific path. Default will scan the whole repository
+        files: "charts/netchecks"
+      - name: Upload Kubescape scan results to Github Code Scanning
+        uses: github/codeql-action/upload-sarif@v2
+        with:
+          sarif_file: results.sarif
